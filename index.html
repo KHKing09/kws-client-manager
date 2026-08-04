@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kamal Web Studio Client Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#FF3B30',
+                            hover: '#E0342A'
+                        },
+                        dark: {
+                            bg: '#080B12',
+                            sidebar: '#0D111A',
+                            card: '#141923',
+                            border: '#252B36'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Smooth transition for theme change */
+        body { transition: background-color 0.3s ease, color 0.3s ease; }
+    </style>
+</head>
+<body class="bg-[#080B12] text-white dark:bg-[#080B12] dark:text-white light:bg-gray-100 light:text-gray-900 font-sans antialiased min-h-screen flex flex-col">
+
+    <div id="loading-screen" class="fixed inset-0 bg-[#080B12] z-50 flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="text-center">
+            <h1 class="text-4xl font-black tracking-widest text-[#FF3B30] mb-2">KWS</h1>
+            <p class="text-xl font-semibold mb-1">Kamal Web Studio</p>
+            <p class="text-sm text-gray-400 mb-6">Client Manager</p>
+            <div class="inline-block w-8 h-8 border-4 border-[#FF3B30] border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-xs text-gray-500 mt-3">Loading...</p>
+        </div>
+    </div>
+
+    <header class="md:hidden bg-[#0D111A] border-b border-[#252B36] p-4 flex items-center justify-between sticky top-0 z-30">
+        <button onclick="toggleSidebar()" class="text-xl text-gray-300 focus:outline-none"><i class="fa-solid fa-bars"></i></button>
+        <h1 class="font-bold tracking-wide text-sm">KWS Client Manager</h1>
+        <button onclick="toggleTheme()" class="text-xl text-gray-300 focus:outline-none"><i id="mobile-theme-icon" class="fa-solid fa-moon"></i></button>
+    </header>
+
+    <div class="flex flex-1 relative overflow-hidden">
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-[#0D111A] border-r border-[#252B36] transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col justify-between">
+            <div>
+                <div class="p-6 border-b border-[#252B36]">
+                    <h2 class="text-2xl font-black text-[#FF3B30] tracking-wider">KWS</h2>
+                    <p class="text-sm font-medium text-gray-300">Kamal Web Studio</p>
+                </div>
+                <nav class="p-4 space-y-1">
+                    <a href="#" onclick="switchTab('dashboard')" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-gray-300 hover:bg-[#141923] hover:text-[#FF3B30] transition active" data-tab="dashboard">
+                        <i class="fa-solid fa-house w-5"></i> Dashboard
+                    </a>
+                    <a href="#" onclick="switchTab('clients')" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-gray-300 hover:bg-[#141923] hover:text-[#FF3B30] transition" data-tab="clients">
+                        <i class="fa-solid fa-users w-5"></i> Clients
+                    </a>
+                    <a href="#" onclick="switchTab('add-client')" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-gray-300 hover:bg-[#141923] hover:text-[#FF3B30] transition" data-tab="add-client">
+                        <i class="fa-solid fa-user-plus w-5"></i> Add New Client
+                    </a>
+                    <a href="#" onclick="switchTab('projects')" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-gray-300 hover:bg-[#141923] hover:text-[#FF3B30] transition" data-tab="projects">
+                        <i class="fa-solid fa-folder-open w-5"></i> Projects
+                    </a>
+                    <a href="#" onclick="switchTab('payments')" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-gray-300 hover:bg-[#141923] hover:text-[#FF3B30] transition" data-tab="payments">
+                        <i class="fa-solid fa-wallet w-5"></i> Payments
+                    </a>
+                    <a href="#" onclick="switchTab('completed')" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-gray-300 hover:bg-[#141923] hover:text-[#FF3B30] transition" data-tab="completed">
+                        <i class="fa-solid fa-circle-check w-5"></i> Completed Projects
+                    </a>
+                    <a href="#" onclick="switchTab('settings')" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-gray-300 hover:bg-[#141923] hover:text-[#FF3B30] transition" data-tab="settings">
+                        <i class="fa-solid fa-gear w-5"></i> Settings
+                    </a>
+                </nav>
+            </div>
+            <div class="p-4 border-t border-[#252B36] flex items-center justify-between">
+                <span class="text-xs text-gray-400">Dark Mode</span>
+                <button onclick="toggleTheme()" class="p-2 rounded-lg bg-[#141923] text-gray-300 hover:text-[#FF3B30] transition"><i id="desktop-theme-icon" class="fa-solid fa-moon"></i></button>
+            </div>
+        </aside>
+
+        <main class="flex-1 md:ml-64 p-4 md:p-8 overflow-y-auto min-h-screen pb-20 md:pb-8">
+
+            <section id="tab-dashboard" class="tab-content space-y-6">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold">Good Evening, Kamal 👋</h1>
+                    <p class="text-sm text-gray-400">Here is your business overview.</p>
+                </div>
+
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="switchTab('add-client')" class="bg-[#FF3B30] hover:bg-[#E0342A] text-white font-medium px-5 py-2.5 rounded-xl text-sm transition flex items-center gap-2 shadow-lg shadow-red-500/20">
+                        <i class="fa-solid fa-plus"></i> Add New Client
+                    </button>
+                    <button onclick="switchTab('payments')" class="bg-[#141923] border border-[#252B36] hover:border-[#FF3B30] text-gray-200 font-medium px-5 py-2.5 rounded-xl text-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-wallet text-[#FF3B30]"></i> Add Payment
+                    </button>
+                    <button onclick="switchTab('projects')" class="bg-[#141923] border border-[#252B36] hover:border-[#FF3B30] text-gray-200 font-medium px-5 py-2.5 rounded-xl text-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-folder text-[#FF3B30]"></i> View Projects
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="bg-[#141923] border border-[#252B36] p-5 rounded-2xl shadow-sm">
+                        <div class="text-[#FF3B30] text-lg mb-2"><i class="fa-solid fa-users"></i></div>
+                        <p class="text-xs text-gray-400">Total Clients</p>
+                        <h3 id="stat-total-clients" class="text-2xl font-bold mt-1">0</h3>
+                    </div>
+                    <div class="bg-[#141923] border border-[#252B36] p-5 rounded-2xl shadow-sm">
+                        <div class="text-[#FF3B30] text-lg mb-2"><i class="fa-solid fa-folder-open"></i></div>
+                        <p class="text-xs text-gray-400">Active Projects</p>
+                        <h3 id="stat-active-projects" class="text-2xl font-bold mt-1">0</h3>
+                    </div>
+                    <div class="bg-[#141923] border border-[#252B36] p-5 rounded-2xl shadow-sm">
+                        <div class="text-[#FF3B30] text-lg mb-2"><i class="fa-solid fa-circle-check"></i></div>
+                        <p class="text-xs text-gray-400">Completed Projects</p>
+                        <h3 id="stat-completed-projects" class="text-2xl font-bold mt-1">0</h3>
+                    </div>
+                    <div class="bg-[#141923] border border-[#252B36] p-5 rounded-2xl shadow-sm">
+                        <div class="text-[#FF3B30] text-lg mb-2"><i class="fa-solid fa-bangladeshi-taka-sign"></i></div>
+                        <p class="text-xs text-gray-400">Total Amount</p>
+                        <h3 id="stat-total-amount" class="text-2xl font-bold mt-1">৳0</h3>
+                    </div>
+                    <div class="bg-[#141923] border border-[#252B36] p-5 rounded-2xl shadow-sm">
+                        <div class="text-[#FF3B30] text-lg mb-2"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                        <p class="text-xs text-gray-400">Received Amount</p>
+                        <h3 id="stat-received-amount" class="text-2xl font-bold mt-1">৳0</h3>
+                    </div>
+                    <div class="bg-[#141923] border border-[#252B36] p-5 rounded-2xl shadow-sm">
+                        <div class="text-[#FF3B30] text-lg mb-2"><i class="fa-solid fa-clock"></i></div>
+                        <p class="text-xs text-gray-400">Total Due</p>
+                        <h3 id="stat-total-due" class="text-2xl font-bold mt-1">৳0</h3>
+                    </div>
+                </div>
+
+                <div class="bg-[#141923] border border-[#252B36] rounded-2xl p-5 overflow-hidden">
+                    <h3 class="font-bold text-lg mb-4">Recent Clients</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead>
+                                <tr class="border-b border-[#252B36] text-gray-400">
+                                    <th class="pb-3 font-medium">Client</th>
+                                    <th class="pb-3 font-medium">Website</th>
+                                    <th class="pb-3 font-medium">Work</th>
+                                    <th class="pb-3 font-medium">Amount</th>
+                                    <th class="pb-3 font-medium">Status</th>
+                                    <th class="pb-3 font-medium text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-clients-table-body" class="divide-y divide-[#252B36]">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-clients" class="tab-content space-y-6 hidden">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <h1 class="text-2xl font-bold">Clients</h1>
+                    <button onclick="switchTab('add-client')" class="bg-[#FF3B30] hover:bg-[#E0342A] text-white font-medium px-4 py-2 rounded-xl text-sm transition self-start flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Add New Client
+                    </button>
+                </div>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="relative flex-1">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i class="fa-solid fa-search"></i></span>
+                        <input type="text" id="client-search-input" oninput="filterClients()" placeholder="Search Client, Phone, Website, Work Type..." class="w-full bg-[#141923] border border-[#252B36] rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#FF3B30]">
+                    </div>
+                    <div class="flex gap-2 overflow-x-auto pb-2 md:pb-0">
+                        <button onclick="filterByStatus('All')" class="filter-btn px-4 py-2 bg-[#FF3B30] text-white rounded-xl text-xs font-medium whitespace-nowrap">All</button>
+                        <button onclick="filterByStatus('Pending')" class="filter-btn px-4 py-2 bg-[#141923] border border-[#252B36] text-gray-300 rounded-xl text-xs font-medium whitespace-nowrap hover:border-[#FF3B30]">Pending</button>
+                        <button onclick="filterByStatus('In Progress')" class="filter-btn px-4 py-2 bg-[#141923] border border-[#252B36] text-gray-300 rounded-xl text-xs font-medium whitespace-nowrap hover:border-[#FF3B30]">In Progress</button>
+                        <button onclick="filterByStatus('Completed')" class="filter-btn px-4 py-2 bg-[#141923] border border-[#252B36] text-gray-300 rounded-xl text-xs font-medium whitespace-nowrap hover:border-[#FF3B30]">Completed</button>
+                        <button onclick="filterByStatus('Cancelled')" class="filter-btn px-4 py-2 bg-[#141923] border border-[#252B36] text-gray-300 rounded-xl text-xs font-medium whitespace-nowrap hover:border-[#FF3B30]">Cancelled</button>
+                    </div>
+                </div>
+
+                <div id="clients-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    </div>
+            </section>
+
+            <section id="tab-add-client" class="tab-content space-y-6 hidden">
+                <div>
+                    <button onclick="switchTab('clients')" class="text-sm text-gray-400 hover:text-white mb-2 flex items-center gap-1"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                    <h1 class="text-2xl font-bold">Add New Client</h1>
+                    <p class="text-sm text-gray-400">Enter client and project information.</p>
+                </div>
+
+                <form id="client-form" onsubmit="saveClient(event)" class="bg-[#141923] border border-[#252B36] rounded-2xl p-6 space-y-6">
+                    <input type="hidden" id="edit-client-id">
+                    <div>
+                        <h3 class="text-sm font-semibold text-[#FF3B30] uppercase tracking-wider mb-4">Client Information</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Client Name *</label>
+                                <input type="text" id="client-name" required class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#FF3B30]">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Phone Number *</label>
+                                <input type="text" id="client-phone" required class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#FF3B30]">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Email Address</label>
+                                <input type="email" id="client-email" class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#FF3B30]">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Client Address</label>
+                                <input type="text" id="client-address" class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#FF3B30]">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-semibold text-[#FF3B30] uppercase tracking-wider mb-4">Project Information</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Website/Project Name *</label>
+                                <input type="text" id="project-name" required class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#FF3B30]">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Website URL</label>
+                                <input type="text" id="project-url" class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#FF3B30]">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Work Type *</label>
+                                <select id="work-type" required class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#FF3B30]">
+                                    <option value="Portfolio Website">Portfolio Website</option>
+                                    <option value="Business Website">Business Website</option>
+                                    <option value="News Website">News Website</option>
+                                    <option value="Restaurant Website">Restaurant Website</option>
+                                    <option value="E-commerce Website">E-commerce Website</option>
+                                    <option value="Blogger Website">Blogger Website</option>
+                                    <option value="Website Customization">Website Customization</option>
+                                    <option value="Domain & Hosting Setup">Domain & Hosting Setup</option>
+                                    <option value="Graphic Design">Graphic Design</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Project Status</label>
+                                <select id="project-status" class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#FF3B30]">
+                                    <option value="Pending">Pending</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Completed">Completed</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Project Start Date</label>
+                                <input type="date" id="project-start" class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#FF3B30]">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Project Deadline</label>
+                                <input type="date" id="project-deadline" class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#FF3B30]">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-semibold text-[#FF3B30] uppercase tracking-wider mb-4">Payment Information</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Total Amount (৳) *</label>
+                                <input type="number" id="total-amount" oninput="calculateDue()" required class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#FF3B30]">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Received/Advance Amount (৳) *</label>
+                                <input type="number" id="received-amount" oninput="calculateDue()" required class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#FF3B30]">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Due Amount (Auto Calculate)</label>
+                                <input type="number" id="due-amount" readonly class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm text-gray-400 cursor-not-allowed">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-[#252B36]">
+                        <button type="button" onclick="switchTab('clients')" class="px-5 py-2.5 bg-[#0D111A] border border-[#252B36] text-gray-300 rounded-xl text-sm font-medium hover:bg-[#252B36] transition">Cancel</button>
+                        <button type="submit" id="save-client-btn" class="px-6 py-2.5 bg-[#FF3B30] hover:bg-[#E0342A] text-white rounded-xl text-sm font-medium transition">Save Client</button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="tab-client-details" class="tab-content space-y-6 hidden">
+                <div>
+                    <button onclick="switchTab('clients')" class="text-sm text-gray-400 hover:text-white mb-2 flex items-center gap-1"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 id="detail-client-name" class="text-2xl font-bold">Client Name</h1>
+                            <p id="detail-work-name" class="text-sm text-gray-400">Work Type</p>
+                        </div>
+                        <span id="detail-status" class="px-3 py-1 rounded-full text-xs font-medium">Status</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="md:col-span-2 space-y-6">
+                        <div class="bg-[#141923] border border-[#252B36] rounded-2xl p-5 space-y-4">
+                            <h3 class="text-sm font-semibold text-[#FF3B30] uppercase tracking-wider">Client Information</h3>
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div><span class="text-gray-400 block text-xs">Phone</span><span id="detail-phone">-</span></div>
+                                <div><span class="text-gray-400 block text-xs">Email</span><span id="detail-email">-</span></div>
+                                <div class="col-span-2"><span class="text-gray-400 block text-xs">Address</span><span id="detail-address">-</span></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-[#141923] border border-[#252B36] rounded-2xl p-5 space-y-4">
+                            <h3 class="text-sm font-semibold text-[#FF3B30] uppercase tracking-wider">Project Information</h3>
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div><span class="text-gray-400 block text-xs">Website</span><a id="detail-url" href="#" target="_blank" class="text-[#FF3B30] underline">-</a></div>
+                                <div><span class="text-gray-400 block text-xs">Work Type</span><span id="detail-work-type">-</span></div>
+                                <div><span class="text-gray-400 block text-xs">Start Date</span><span id="detail-start">-</span></div>
+                                <div><span class="text-gray-400 block text-xs">Deadline</span><span id="detail-deadline">-</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-[#141923] border border-[#252B36] rounded-2xl p-5 space-y-4">
+                            <h3 class="text-sm font-semibold text-[#FF3B30] uppercase tracking-wider">Payment Summary</h3>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between"><span class="text-gray-400">Total:</span><span id="detail-total-amount" class="font-bold">৳0</span></div>
+                                <div class="flex justify-between"><span class="text-gray-400">Received:</span><span id="detail-received-amount" class="font-bold text-green-500">৳0</span></div>
+                                <div class="flex justify-between border-t border-[#252B36] pt-3"><span class="text-gray-400">Due:</span><span id="detail-due-amount" class="font-bold text-red-500">৳0</span></div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-3">
+                            <button onclick="editCurrentClient()" class="w-full bg-[#141923] border border-[#252B36] hover:border-[#FF3B30] text-gray-200 font-medium py-2.5 rounded-xl text-sm transition"><i class="fa-solid fa-pen-to-square mr-2"></i> Edit Client</button>
+                            <button onclick="openPaymentModalFromDetails()" class="w-full bg-[#FF3B30] hover:bg-[#E0342A] text-white font-medium py-2.5 rounded-xl text-sm transition"><i class="fa-solid fa-plus mr-2"></i> Add Payment</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-projects" class="tab-content space-y-6 hidden">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <h1 class="text-2xl font-bold">Projects</h1>
+                    <div class="flex gap-2 overflow-x-auto pb-2 md:pb-0">
+                        <button onclick="filterProjects('All')" class="proj-filter-btn px-4 py-2 bg-[#FF3B30] text-white rounded-xl text-xs font-medium whitespace-nowrap">All Projects</button>
+                        <button onclick="filterProjects('Active')" class="proj-filter-btn px-4 py-2 bg-[#141923] border border-[#252B36] text-gray-300 rounded-xl text-xs font-medium whitespace-nowrap hover:border-[#FF3B30]">Active</button>
+                        <button onclick="filterProjects('Completed')" class="proj-filter-btn px-4 py-2 bg-[#141923] border border-[#252B36] text-gray-300 rounded-xl text-xs font-medium whitespace-nowrap hover:border-[#FF3B30]">Completed</button>
+                        <button onclick="filterProjects('Pending')" class="proj-filter-btn px-4 py-2 bg-[#141923] border border-[#252B36] text-gray-300 rounded-xl text-xs font-medium whitespace-nowrap hover:border-[#FF3B30]">Pending</button>
+                        <button onclick="filterProjects('Cancelled')" class="proj-filter-btn px-4 py-2 bg-[#141923] border border-[#252B36] text-gray-300 rounded-xl text-xs font-medium whitespace-nowrap hover:border-[#FF3B30]">Cancelled</button>
+                    </div>
+                </div>
+
+                <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    </div>
+            </section>
+
+            <section id="tab-completed" class="tab-content space-y-6 hidden">
+                <h1 class="text-2xl font-bold">Completed Projects</h1>
+                <div id="completed-projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    </div>
+            </section>
+
+            <section id="tab-payments" class="tab-content space-y-6 hidden">
+                <h1 class="text-2xl font-bold">Payments</h1>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-[#141923] border border-[#252B36] p-5 rounded-2xl">
+                        <p class="text-xs text-gray-400">Total Amount</p>
+                        <h3 id="pay-total" class="text-2xl font-bold mt-1">৳0</h3>
+                    </div>
+                    <div class="bg-[#141923] border border-[#252B36] p-5 rounded-2xl">
+                        <p class="text-xs text-gray-400">Received Amount</p>
+                        <h3 id="pay-received" class="text-2xl font-bold mt-1 text-green-500">৳0</h3>
+                    </div>
+                    <div class="bg-[#141923] border border-[#252B36] p-5 rounded-2xl">
+                        <p class="text-xs text-gray-400">Total Due</p>
+                        <h3 id="pay-due" class="text-2xl font-bold mt-1 text-red-500">৳0</h3>
+                    </div>
+                </div>
+
+                <div class="bg-[#141923] border border-[#252B36] rounded-2xl p-5 overflow-hidden">
+                    <h3 class="font-bold text-lg mb-4">Payment Ledger</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead>
+                                <tr class="border-b border-[#252B36] text-gray-400">
+                                    <th class="pb-3 font-medium">Client</th>
+                                    <th class="pb-3 font-medium">Total</th>
+                                    <th class="pb-3 font-medium">Received</th>
+                                    <th class="pb-3 font-medium">Due</th>
+                                    <th class="pb-3 font-medium text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payments-table-body" class="divide-y divide-[#252B36]">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-settings" class="tab-content space-y-6 hidden">
+                <h1 class="text-2xl font-bold">Settings</h1>
+                <div class="bg-[#141923] border border-[#252B36] rounded-2xl p-6 space-y-6 max-w-2xl">
+                    <div>
+                        <h3 class="text-sm font-semibold text-[#FF3B30] uppercase tracking-wider mb-4">Business Information</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Business Name:</label>
+                                <input type="text" value="Kamal Web Studio" readonly class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm text-gray-400">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Manager Name:</label>
+                                <input type="text" value="Kamal" readonly class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm text-gray-400">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Currency:</label>
+                                <input type="text" value="Bangladeshi Taka (৳)" readonly class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm text-gray-400">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-[#252B36]">
+                        <h3 class="text-sm font-semibold text-[#FF3B30] uppercase tracking-wider mb-4">Theme Settings</h3>
+                        <div class="flex gap-4">
+                            <button onclick="setTheme('light')" class="flex-1 bg-[#0D111A] border border-[#252B36] py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:border-[#FF3B30]"><i class="fa-solid fa-sun"></i> Light Mode</button>
+                            <button onclick="setTheme('dark')" class="flex-1 bg-[#0D111A] border border-[#252B36] py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:border-[#FF3B30]"><i class="fa-solid fa-moon"></i> Dark Mode</button>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-[#252B36]">
+                        <h3 class="text-sm font-semibold text-[#FF3B30] uppercase tracking-wider mb-4">Data Management</h3>
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="exportBackup()" class="bg-[#0D111A] border border-[#252B36] hover:border-[#FF3B30] px-4 py-2 rounded-xl text-sm font-medium transition"><i class="fa-solid fa-download mr-2"></i> Export Backup</button>
+                            <label class="bg-[#0D111A] border border-[#252B36] hover:border-[#FF3B30] px-4 py-2 rounded-xl text-sm font-medium transition cursor-pointer">
+                                <i class="fa-solid fa-upload mr-2"></i> Import Backup
+                                <input type="file" id="import-file" onchange="importBackup(event)" accept=".json" class="hidden">
+                            </label>
+                            <button onclick="clearAllData()" class="bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white px-4 py-2 rounded-xl text-sm font-medium transition"><i class="fa-solid fa-trash mr-2"></i> Clear All Data</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <nav class="md:hidden fixed bottom-0 inset-x-0 bg-[#0D111A] border-t border-[#252B36] flex justify-around p-3 z-30">
+        <a href="#" onclick="switchTab('dashboard')" class="mobile-nav-link text-gray-400 hover:text-[#FF3B30] text-center text-xs flex flex-col items-center gap-1 active text-[#FF3B30]" data-tab="dashboard">
+            <i class="fa-solid fa-house text-base"></i> Home
+        </a>
+        <a href="#" onclick="switchTab('clients')" class="mobile-nav-link text-gray-400 hover:text-[#FF3B30] text-center text-xs flex flex-col items-center gap-1" data-tab="clients">
+            <i class="fa-solid fa-users text-base"></i> Clients
+        </a>
+        <a href="#" onclick="switchTab('add-client')" class="mobile-nav-link text-gray-400 hover:text-[#FF3B30] text-center text-xs flex flex-col items-center gap-1" data-tab="add-client">
+            <i class="fa-solid fa-circle-plus text-base"></i> Add
+        </a>
+        <a href="#" onclick="switchTab('projects')" class="mobile-nav-link text-gray-400 hover:text-[#FF3B30] text-center text-xs flex flex-col items-center gap-1" data-tab="projects">
+            <i class="fa-solid fa-folder text-base"></i> Projects
+        </a>
+        <a href="#" onclick="switchTab('settings')" class="mobile-nav-link text-gray-400 hover:text-[#FF3B30] text-center text-xs flex flex-col items-center gap-1" data-tab="settings">
+            <i class="fa-solid fa-gear text-base"></i> More
+        </a>
+    </nav>
+
+    <div id="payment-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#141923] border border-[#252B36] rounded-2xl p-6 w-full max-w-md space-y-4">
+            <h3 class="text-lg font-bold">Add Payment</h3>
+            <input type="hidden" id="modal-client-id">
+            <div>
+                <p class="text-xs text-gray-400">Client: <span id="modal-client-name" class="font-bold text-white"></span></p>
+                <p class="text-xs text-gray-400 mt-1">Current Due: <span id="modal-current-due" class="font-bold text-red-500"></span></p>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-400 mb-1">Payment Amount (৳) *</label>
+                <input type="number" id="modal-pay-amount" required class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#FF3B30]">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-400 mb-1">Payment Date *</label>
+                <input type="date" id="modal-pay-date" required class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#FF3B30]">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-400 mb-1">Note</label>
+                <input type="text" id="modal-pay-note" placeholder="e.g. Final Payment" class="w-full bg-[#0D111A] border border-[#252B36] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#FF3B30]">
+            </div>
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" onclick="closePaymentModal()" class="px-4 py-2 bg-[#0D111A] border border-[#252B36] text-gray-300 rounded-xl text-sm font-medium">Cancel</button>
+                <button type="button" onclick="saveModalPayment()" class="px-4 py-2 bg-[#FF3B30] text-white rounded-xl text-sm font-medium">Save Payment</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="delete-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#141923] border border-[#252B36] rounded-2xl p-6 w-full max-w-sm space-y-4 text-center">
+            <div class="text-red-500 text-3xl mb-2"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <h3 class="text-lg font-bold">Delete Client?</h3>
+            <p id="delete-modal-text" class="text-xs text-gray-400">Are you sure you want to delete this client?</p>
+            <input type="hidden" id="delete-client-id">
+            <div class="flex justify-center gap-3 pt-2">
+                <button type="button" onclick="closeDeleteModal()" class="px-4 py-2 bg-[#0D111A] border border-[#252B36] text-gray-300 rounded-xl text-sm font-medium">Cancel</button>
+                <button type="button" onclick="confirmDeleteClient()" class="px-4 py-2 bg-red-500 text-white rounded-xl text-sm font-medium">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'kws_clients';
+        const THEME_KEY = 'kws_theme';
+
+        let clients = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        let currentActiveTab = 'dashboard';
+        let currentClientId = null;
+        let currentFilterStatus = 'All';
+        let currentProjFilterStatus = 'All';
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('loading-screen');
+                if (loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.remove(), 500);
+                }
+            }, 800);
+            initApp();
+        });
+
+        function initApp() {
+            loadTheme();
+            renderDashboard();
+            renderClients();
+            renderProjects();
+            renderCompletedProjects();
+            renderPayments();
+        }
+
+        function syncLocalStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(clients));
+        }
+
+        function switchTab(tabId) {
+            currentActiveTab = tabId;
+            document.querySelectorAll('.tab-content').forEach((el) => el.classList.add('hidden'));
+
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+
+            document.querySelectorAll('.nav-link').forEach((el) => {
+                el.classList.remove('text-[#FF3B30]', 'bg-[#141923]');
+                if (el.dataset.tab === tabId) {
+                    el.classList.add('text-[#FF3B30]', 'bg-[#141923]');
+                }
+            });
+
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.add('-translate-x-full');
+            }
+
+            document.querySelectorAll('.mobile-nav-link').forEach((el) => {
+                el.classList.remove('text-[#FF3B30]');
+                if (el.dataset.tab === tabId) {
+                    el.classList.add('text-[#FF3B30]');
+                }
+            });
+
+            if (tabId === 'add-client') {
+                const form = document.getElementById('client-form');
+                const editIdField = document.getElementById('edit-client-id');
+                const saveBtn = document.getElementById('save-client-btn');
+                const dueField = document.getElementById('due-amount');
+
+                if (form) form.reset();
+                if (editIdField) editIdField.value = '';
+                if (saveBtn) saveBtn.innerText = 'Save Client';
+                if (dueField) dueField.value = '';
+            }
+
+            window.scrollTo(0, 0);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('-translate-x-full');
+            }
+        }
+
+        function setTheme(theme) {
+            const html = document.documentElement;
+            const isLight = theme === 'light';
+
+            if (isLight) {
+                html.classList.remove('dark');
+            } else {
+                html.classList.add('dark');
+            }
+
+            localStorage.setItem(THEME_KEY, theme);
+
+            const desktopThemeIcon = document.getElementById('desktop-theme-icon');
+            const mobileThemeIcon = document.getElementById('mobile-theme-icon');
+
+            if (desktopThemeIcon) {
+                desktopThemeIcon.className = isLight ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            }
+            if (mobileThemeIcon) {
+                mobileThemeIcon.className = isLight ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            setTheme(isDark ? 'light' : 'dark');
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+            setTheme(savedTheme);
+        }
+
+        function calculateDue() {
+            const total = Number.parseFloat(document.getElementById('total-amount').value) || 0;
+            const received = Number.parseFloat(document.getElementById('received-amount').value) || 0;
+            const due = Math.max(total - received, 0);
+            document.getElementById('due-amount').value = due;
+        }
+
+        function saveClient(event) {
+            event.preventDefault();
+            const editId = document.getElementById('edit-client-id').value;
+
+            const clientData = {
+                id: editId || `kws_${Date.now()}`,
+                name: document.getElementById('client-name').value.trim(),
+                phone: document.getElementById('client-phone').value.trim(),
+                email: document.getElementById('client-email').value.trim(),
+                address: document.getElementById('client-address').value.trim(),
+                projectName: document.getElementById('project-name').value.trim(),
+                projectUrl: document.getElementById('project-url').value.trim(),
+                workType: document.getElementById('work-type').value,
+                status: document.getElementById('project-status').value,
+                startDate: document.getElementById('project-start').value || new Date().toISOString().split('T')[0],
+                deadline: document.getElementById('project-deadline').value || '-',
+                totalAmount: Number.parseFloat(document.getElementById('total-amount').value) || 0,
+                receivedAmount: Number.parseFloat(document.getElementById('received-amount').value) || 0,
+                dueAmount: Number.parseFloat(document.getElementById('due-amount').value) || 0
+            };
+
+            if (!clientData.name || !clientData.phone || !clientData.projectName) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            if (editId) {
+                const index = clients.findIndex((client) => client.id === editId);
+                if (index !== -1) {
+                    clients[index] = { ...clients[index], ...clientData };
+                }
+            } else {
+                clients.unshift(clientData);
+            }
+
+            syncLocalStorage();
+            initApp();
+            switchTab('clients');
+        }
+
+        function renderDashboard() {
+            const totalClients = clients.length;
+            const activeProjects = clients.filter((client) => client.status === 'In Progress' || client.status === 'Pending').length;
+            const completedProjects = clients.filter((client) => client.status === 'Completed').length;
+            const totalAmount = clients.reduce((acc, client) => acc + (Number(client.totalAmount) || 0), 0);
+            const receivedAmount = clients.reduce((acc, client) => acc + (Number(client.receivedAmount) || 0), 0);
+            const totalDue = clients.reduce((acc, client) => acc + (Number(client.dueAmount) || 0), 0);
+
+            document.getElementById('stat-total-clients').innerText = totalClients;
+            document.getElementById('stat-active-projects').innerText = activeProjects;
+            document.getElementById('stat-completed-projects').innerText = completedProjects;
+            document.getElementById('stat-total-amount').innerText = `৳${totalAmount.toLocaleString()}`;
+            document.getElementById('stat-received-amount').innerText = `৳${receivedAmount.toLocaleString()}`;
+            document.getElementById('stat-total-due').innerText = `৳${totalDue.toLocaleString()}`;
+
+            const tbody = document.getElementById('recent-clients-table-body');
+            tbody.innerHTML = '';
+            const recent = clients.slice(0, 5);
+
+            if (recent.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">No clients found</td></tr>';
+                return;
+            }
+
+            recent.forEach((client) => {
+                tbody.innerHTML += `
+                    <tr class="border-b border-[#252B36]/50">
+                        <td class="py-3 font-medium">${client.name}</td>
+                        <td class="py-3 text-gray-400">${client.projectUrl || '-'}</td>
+                        <td class="py-3 text-gray-400">${client.workType}</td>
+                        <td class="py-3">৳${(Number(client.totalAmount) || 0).toLocaleString()}</td>
+                        <td class="py-3"><span class="px-2.5 py-1 rounded-full text-xs font-medium ${getStatusBadge(client.status)}">${client.status}</span></td>
+                        <td class="py-3 text-right"><button onclick="viewClientDetails('${client.id}')" class="text-[#FF3B30] hover:underline text-xs font-medium">View →</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderClients() {
+            const grid = document.getElementById('clients-grid');
+            grid.innerHTML = '';
+
+            let filtered = clients;
+            if (currentFilterStatus !== 'All') {
+                filtered = clients.filter((client) => client.status === currentFilterStatus);
+            }
+
+            const searchInput = document.getElementById('client-search-input');
+            const searchKey = searchInput ? searchInput.value.toLowerCase() : '';
+            if (searchKey) {
+                filtered = filtered.filter((client) => {
+                    const text = [
+                        client.name,
+                        client.phone,
+                        client.projectUrl,
+                        client.workType,
+                        client.projectName
+                    ].join(' ').toLowerCase();
+                    return text.includes(searchKey);
+                });
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-500">No matching clients found.</div>';
+                return;
+            }
+
+            filtered.forEach((client) => {
+                grid.innerHTML += `
+                    <div class="bg-[#141923] border border-[#252B36] rounded-2xl p-5 space-y-4 flex flex-col justify-between">
+                        <div class="space-y-2">
+                            <div class="flex items-start justify-between">
+                                <h3 class="font-bold text-base"><i class="fa-solid fa-user mr-2 text-[#FF3B30]"></i>${client.name}</h3>
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-medium ${getStatusBadge(client.status)}">${client.status}</span>
+                            </div>
+                            <div class="text-xs text-gray-400 space-y-1">
+                                <p><i class="fa-solid fa-phone w-4"></i> ${client.phone}</p>
+                                <p><i class="fa-solid fa-globe w-4"></i> ${client.projectUrl || 'N/A'}</p>
+                                <p><i class="fa-solid fa-laptop-code w-4"></i> ${client.workType}</p>
+                            </div>
+                        </div>
+                        <div class="border-t border-[#252B36] pt-3 text-xs space-y-1">
+                            <div class="flex justify-between"><span class="text-gray-400">Total:</span><span class="font-semibold">৳${(Number(client.totalAmount) || 0).toLocaleString()}</span></div>
+                            <div class="flex justify-between"><span class="text-gray-400">Paid:</span><span class="font-semibold text-green-500">৳${(Number(client.receivedAmount) || 0).toLocaleString()}</span></div>
+                            <div class="flex justify-between"><span class="text-gray-400">Due:</span><span class="font-semibold text-red-500">৳${(Number(client.dueAmount) || 0).toLocaleString()}</span></div>
+                        </div>
+                        <div class="flex items-center justify-end gap-3 pt-2 border-t border-[#252B36]">
+                            <button onclick="viewClientDetails('${client.id}')" class="text-xs text-gray-300 hover:text-[#FF3B30] font-medium">View</button>
+                            <button onclick="editClient('${client.id}')" class="text-xs text-gray-300 hover:text-blue-400 font-medium">Edit</button>
+                            <button onclick="openDeleteModal('${client.id}', '${client.name}')" class="text-xs text-red-400 hover:text-red-500 font-medium">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filterByStatus(status) {
+            currentFilterStatus = status;
+            document.querySelectorAll('.filter-btn').forEach((btn) => {
+                const matches = btn.innerText.trim() === status || (status === 'All' && btn.innerText.trim() === 'All');
+                btn.className = 'filter-btn px-4 py-2 bg-[#141923] border border-[#252B36] text-gray-300 rounded-xl text-xs font-medium whitespace-nowrap hover:border-[#FF3B30]';
+                if (matches) {
+                    btn.className = 'filter-btn px-4 py-2 bg-[#FF3B30] text-white rounded-xl text-xs font-medium whitespace-nowrap';
+                }
+            });
+            renderClients();
+        }
+
+        function filterClients() {
+            renderClients();
+        }
+
+        function viewClientDetails(id) {
+            currentClientId = id;
+            const client = clients.find((item) => item.id === id);
+            if (!client) return;
+
+            document.getElementById('detail-client-name').innerText = client.name;
+            document.getElementById('detail-work-name').innerText = client.projectName;
+            document.getElementById('detail-status').innerText = client.status;
+            document.getElementById('detail-status').className = `px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(client.status)}`;
+
+            document.getElementById('detail-phone').innerText = client.phone;
+            document.getElementById('detail-email').innerText = client.email || 'N/A';
+            document.getElementById('detail-address').innerText = client.address || 'N/A';
+
+            const urlElem = document.getElementById('detail-url');
+            urlElem.innerText = client.projectUrl || 'N/A';
+            urlElem.href = client.projectUrl ? (client.projectUrl.startsWith('http') ? client.projectUrl : `https://${client.projectUrl}`) : '#';
+
+            document.getElementById('detail-work-type').innerText = client.workType;
+            document.getElementById('detail-start').innerText = client.startDate || '-';
+            document.getElementById('detail-deadline').innerText = client.deadline || '-';
+            document.getElementById('detail-total-amount').innerText = `৳${(Number(client.totalAmount) || 0).toLocaleString()}`;
+            document.getElementById('detail-received-amount').innerText = `৳${(Number(client.receivedAmount) || 0).toLocaleString()}`;
+            document.getElementById('detail-due-amount').innerText = `৳${(Number(client.dueAmount) || 0).toLocaleString()}`;
+
+            switchTab('client-details');
+        }
+
+        function editCurrentClient() {
+            if (currentClientId) {
+                editClient(currentClientId);
+            }
+        }
+
+        function editClient(id) {
+            const client = clients.find((item) => item.id === id);
+            if (!client) return;
+
+            switchTab('add-client');
+            document.getElementById('edit-client-id').value = client.id;
+            document.getElementById('client-name').value = client.name;
+            document.getElementById('client-phone').value = client.phone;
+            document.getElementById('client-email').value = client.email || '';
+            document.getElementById('client-address').value = client.address || '';
+            document.getElementById('project-name').value = client.projectName;
+            document.getElementById('project-url').value = client.projectUrl || '';
+            document.getElementById('work-type').value = client.workType;
+            document.getElementById('project-status').value = client.status;
+            document.getElementById('project-start').value = client.startDate || '';
+            document.getElementById('project-deadline').value = client.deadline || '';
+            document.getElementById('total-amount').value = client.totalAmount || 0;
+            document.getElementById('received-amount').value = client.receivedAmount || 0;
+            document.getElementById('due-amount').value = client.dueAmount || 0;
+            document.getElementById('save-client-btn').innerText = 'Update Client';
+        }
+
+        function openDeleteModal(id, name) {
+            document.getElementById('delete-client-id').value = id;
+            document.getElementById('delete-modal-text').innerText = `Are you sure you want to delete\n${name}?`;
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+        }
+
+        function confirmDeleteClient() {
+            const id = document.getElementById('delete-client-id').value;
+            clients = clients.filter((client) => client.id !== id);
+            syncLocalStorage();
+            initApp();
+            closeDeleteModal();
+            if (currentActiveTab === 'client-details') {
+                switchTab('clients');
+            }
+        }
+
+        function renderProjects() {
+            const grid = document.getElementById('projects-grid');
+            grid.innerHTML = '';
+
+            let filtered = clients;
+            if (currentProjFilterStatus !== 'All') {
+                filtered = clients.filter((client) => {
+                    if (currentProjFilterStatus === 'Active') {
+                        return client.status === 'In Progress' || client.status === 'Pending';
+                    }
+                    return client.status === currentProjFilterStatus;
+                });
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-500">No projects found.</div>';
+                return;
+            }
+
+            filtered.forEach((client) => {
+                const progress = client.status === 'Completed' ? 100 : client.status === 'In Progress' ? 60 : 20;
+                grid.innerHTML += `
+                    <div class="bg-[#141923] border border-[#252B36] rounded-2xl p-5 space-y-4 flex flex-col justify-between">
+                        <div class="space-y-3">
+                            <div class="flex items-start justify-between">
+                                <h3 class="font-bold text-base">${client.projectName || client.workType}</h3>
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-medium ${getStatusBadge(client.status)}">${client.status}</span>
+                            </div>
+                            <div class="text-xs text-gray-400 space-y-1">
+                                <p><i class="fa-solid fa-user w-4 text-[#FF3B30]"></i> Client: ${client.name}</p>
+                                <p><i class="fa-solid fa-calendar w-4 text-[#FF3B30]"></i> Deadline: ${client.deadline || '-'}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs text-gray-400">
+                                    <span>Progress</span>
+                                    <span>${progress}%</span>
+                                </div>
+                                <div class="w-full bg-[#0D111A] h-2 rounded-full overflow-hidden">
+                                    <div class="bg-[#FF3B30] h-full rounded-full" style="width: ${progress}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-[#252B36] flex justify-between items-center text-xs">
+                            <span class="font-semibold text-gray-300">৳${(Number(client.totalAmount) || 0).toLocaleString()}</span>
+                            <button onclick="viewClientDetails('${client.id}')" class="text-[#FF3B30] hover:underline font-medium">View Details →</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filterProjects(status) {
+            currentProjFilterStatus = status;
+            document.querySelectorAll('.proj-filter-btn').forEach((btn) => {
+                const isMatch = btn.innerText.includes(status) || (status === 'All' && btn.innerText.includes('All Projects'));
+                btn.className = 'proj-filter-btn px-4 py-2 bg-[#141923] border border-[#252B36] text-gray-300 rounded-xl text-xs font-medium whitespace-nowrap hover:border-[#FF3B30]';
+                if (isMatch) {
+                    btn.className = 'proj-filter-btn px-4 py-2 bg-[#FF3B30] text-white rounded-xl text-xs font-medium whitespace-nowrap';
+                }
+            });
+            renderProjects();
+        }
+
+        function renderCompletedProjects() {
+            const grid = document.getElementById('completed-projects-grid');
+            grid.innerHTML = '';
+
+            const completed = clients.filter((client) => client.status === 'Completed');
+            if (completed.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-500">No completed projects yet.</div>';
+                return;
+            }
+
+            completed.forEach((client) => {
+                grid.innerHTML += `
+                    <div class="bg-[#141923] border border-[#252B36] rounded-2xl p-5 space-y-4 flex flex-col justify-between">
+                        <div class="space-y-2">
+                            <div class="flex items-start justify-between">
+                                <h3 class="font-bold text-base">${client.projectName || client.workType}</h3>
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-green-500/10 text-green-500">✅ Completed</span>
+                            </div>
+                            <div class="text-xs text-gray-400 space-y-1">
+                                <p><i class="fa-solid fa-user w-4 text-[#FF3B30]"></i> Client: ${client.name}</p>
+                                <p><i class="fa-solid fa-calendar-check w-4 text-[#FF3B30]"></i> Completed: ${client.deadline || '-'}</p>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-[#252B36] flex justify-between items-center text-xs">
+                            <span class="text-gray-400">Project Value: <strong class="text-white">৳${(Number(client.totalAmount) || 0).toLocaleString()}</strong></span>
+                            <button onclick="viewClientDetails('${client.id}')" class="text-[#FF3B30] hover:underline font-medium">View Details</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderPayments() {
+            const totalAmount = clients.reduce((acc, client) => acc + (Number(client.totalAmount) || 0), 0);
+            const receivedAmount = clients.reduce((acc, client) => acc + (Number(client.receivedAmount) || 0), 0);
+            const totalDue = clients.reduce((acc, client) => acc + (Number(client.dueAmount) || 0), 0);
+
+            document.getElementById('pay-total').innerText = `৳${totalAmount.toLocaleString()}`;
+            document.getElementById('pay-received').innerText = `৳${receivedAmount.toLocaleString()}`;
+            document.getElementById('pay-due').innerText = `৳${totalDue.toLocaleString()}`;
+
+            const tbody = document.getElementById('payments-table-body');
+            tbody.innerHTML = '';
+
+            if (clients.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">No payment records found</td></tr>';
+                return;
+            }
+
+            clients.forEach((client) => {
+                tbody.innerHTML += `
+                    <tr class="border-b border-[#252B36]/50">
+                        <td class="py-3 font-medium">${client.name}</td>
+                        <td class="py-3">৳${(Number(client.totalAmount) || 0).toLocaleString()}</td>
+                        <td class="py-3 text-green-500">৳${(Number(client.receivedAmount) || 0).toLocaleString()}</td>
+                        <td class="py-3 text-red-500">৳${(Number(client.dueAmount) || 0).toLocaleString()}</td>
+                        <td class="py-3 text-right">
+                            <button onclick="openPaymentModal('${client.id}')" class="px-3 py-1 bg-[#FF3B30]/10 text-[#FF3B30] hover:bg-[#FF3B30] hover:text-white rounded-lg text-xs font-medium transition">Add Payment</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openPaymentModal(id) {
+            const client = clients.find((item) => item.id === id);
+            if (!client) return;
+
+            document.getElementById('modal-client-id').value = client.id;
+            document.getElementById('modal-client-name').innerText = client.name;
+            document.getElementById('modal-current-due').innerText = `৳${(Number(client.dueAmount) || 0).toLocaleString()}`;
+            document.getElementById('modal-pay-amount').value = '';
+            document.getElementById('modal-pay-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('modal-pay-note').value = '';
+            document.getElementById('payment-modal').classList.remove('hidden');
+        }
+
+        function openPaymentModalFromDetails() {
+            if (currentClientId) {
+                openPaymentModal(currentClientId);
+            }
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+        }
+
+        function saveModalPayment() {
+            const id = document.getElementById('modal-client-id').value;
+            const payAmount = Number.parseFloat(document.getElementById('modal-pay-amount').value) || 0;
+            const client = clients.find((item) => item.id === id);
+
+            if (!client) return;
+
+            client.receivedAmount = (Number(client.receivedAmount) || 0) + payAmount;
+            client.dueAmount = Math.max((Number(client.totalAmount) || 0) - (Number(client.receivedAmount) || 0), 0);
+
+            syncLocalStorage();
+            initApp();
+            closePaymentModal();
+
+            if (currentActiveTab === 'client-details') {
+                viewClientDetails(id);
+            }
+        }
+
+        function exportBackup() {
+            const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(clients, null, 2))}`;
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute('href', dataStr);
+            downloadAnchor.setAttribute('download', `kws_clients_backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (loadEvent) {
+                try {
+                    const imported = JSON.parse(loadEvent.target.result);
+                    if (Array.isArray(imported)) {
+                        clients = imported;
+                        syncLocalStorage();
+                        initApp();
+                        alert('Backup imported successfully!');
+                    } else {
+                        alert('Invalid backup file format.');
+                    }
+                } catch (error) {
+                    alert('Error parsing JSON file.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear all data? This action cannot be undone.')) {
+                clients = [];
+                localStorage.removeItem(STORAGE_KEY);
+                initApp();
+                switchTab('dashboard');
+            }
+        }
+
+        function getStatusBadge(status) {
+            switch (status) {
+                case 'Completed':
+                    return 'bg-green-500/10 text-green-500';
+                case 'In Progress':
+                    return 'bg-blue-500/10 text-blue-500';
+                case 'Pending':
+                    return 'bg-yellow-500/10 text-yellow-500';
+                case 'Cancelled':
+                    return 'bg-red-500/10 text-red-500';
+                default:
+                    return 'bg-gray-500/10 text-gray-400';
+            }
+        }
+    </script>
+</body>
+</html>
